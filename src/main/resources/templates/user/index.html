@@ -11,9 +11,14 @@
 </div>
 </br>
 </hr>
-<a href="/admin/new">Create new user!</a>
+<form th:action="@{/admin/new}" method="GET">
+    <input type="submit" value="Create new user">
+</form>
 <form th:action="@{/logout}" th:method="POST">
     <input type="submit" value="logout"/>
+</form>
+<form th:action="@{/user}" th:method="GET">
+    <input type="submit" value="My page"/>
 </form>
 </body>
 </html>

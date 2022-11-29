@@ -1,6 +1,8 @@
 package ru.kata.spring.boot_security.demo.model;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.UniqueElements;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -12,7 +14,7 @@ public class Role implements GrantedAuthority {
     @Id
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int role_id;
+    private Integer role_id;
     @Column(name="role")
     private String role;
     public Role() {
@@ -20,6 +22,10 @@ public class Role implements GrantedAuthority {
 
     public Role(int role_id) {
         this.role_id = role_id;
+    }
+
+    public Role(String role) {
+        this.role = role;
     }
 
     public Role(int role_id, String role) {
