@@ -18,7 +18,7 @@ public class User implements UserDetails {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
     @NotEmpty(message="Name should not be empty")
     @Size(min = 2, max = 30, message = "Name should be 2 and 30 characters")
     @Column(name="name")
@@ -60,7 +60,7 @@ public class User implements UserDetails {
 
 
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
@@ -134,7 +134,6 @@ public class User implements UserDetails {
     public Collection<Role> getRoles() {
         return roles;
     }
-
     public void setRoles(Collection<Role> roles) {
         this.roles = roles;
     }
@@ -166,7 +165,7 @@ public class User implements UserDetails {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((Integer.valueOf(id) == null) ? 0 : Integer.valueOf(id).hashCode());
         return result;
     }
 }

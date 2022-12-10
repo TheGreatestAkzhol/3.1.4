@@ -9,12 +9,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Collections;
+import java.util.List;
 
 
 @Controller
@@ -35,31 +35,31 @@ public class UserController {
         model.addAttribute("user",user);
         return "forUser/user";
     }
+
     @GetMapping("/admin")
-    public String index(Model model){
+    public String index( Model model,Principal principal){
+        User admin = userService.findByName(principal.getName());
+        model.addAttribute("admin",admin);
         model.addAttribute("users", userService.findAll());
-        return "user/index";
+        model.addAttribute("user",new User());
+        model.addAttribute("roles",roleService.getAllByRole());
+        return "user/adminPage";
+    }
+    @PostMapping("/admin")
+    public String create(@ModelAttribute("user")@Valid User user, BindingResult bindingResult,@RequestParam("role") List<String> roles){
+        if(bindingResult.hasErrors() && userService.existUser(user.getName())){
+            return "redirect:/user/adminPage";
+        }
+        user.setRoles(Collections.singletonList(roleService.findByRole(roles.get(0))));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userService.save(user);
+
+        return "redirect:/admin";
     }
     @GetMapping("/admin/{id}")
     public String show(Model model, @PathVariable("id")int id){
         model.addAttribute("user", userService.findOne(id));
         return "user/show";
-    }
-    @GetMapping("/admin/new")
-    public String newUser(@ModelAttribute("user") User user){
-        return "user/new";
-    }
-    @PostMapping("/admin")
-    public String create(@ModelAttribute("user")@Valid User user, BindingResult bindingResult){
-        if(bindingResult.hasErrors() && userService.existUser(user.getName())){
-            return "user/new";
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Role role = roleService.findByRole("ROLE_USER");
-        user.setRoles(Collections.singletonList(role));
-        userService.save(user);
-
-        return "redirect:/admin";
     }
     @GetMapping("/admin/{id}/edit")
     public String edit(Model model,@PathVariable("id") int id){
@@ -69,13 +69,13 @@ public class UserController {
     @PatchMapping("/admin/{id}")
     public String update(@ModelAttribute("user")@Valid User user,
                          BindingResult bindingResult,
-                         @PathVariable("id")int id){
+                         @PathVariable("id")int id,@RequestParam("role") List<String> roles){
         if(bindingResult.hasErrors()&& userService.existUser(user.getName())){
-            return "user/edit";
+            return "redirect:/user/adminPage";
         }
+
+        user.setRoles(Collections.singletonList(roleService.findByRole(roles.get(0))));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Role role = roleService.findByRole("ROLE_USER");
-        user.setRoles(Collections.singletonList(role));
         userService.update(id,user);
         return "redirect:/admin";
     }
